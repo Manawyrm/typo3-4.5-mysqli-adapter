@@ -2,6 +2,13 @@
 /***************************************************************
  *  Copyright notice
  *
+ *  ----- WARNING ----
+ *  This is a modified version of the Typo3 t3lib_db database adapter
+ *  Modified by Tobias Mädel <t.maedel@alfeld.de> for use with
+ *  modern PHP versions and mysqli_*() instead of the 
+ *  deprecated mysql_*()-handlers.
+ *  ----- WARNING ----
+ * 
  *  (c) 2004-2011 Kasper Skårhøj (kasperYYYY@typo3.com)
  *  All rights reserved
  *
@@ -167,7 +174,7 @@ class t3lib_DB {
 	 * @return	pointer		MySQL result pointer / DBAL object
 	 */
 	function exec_INSERTquery($table, $fields_values, $no_quote_fields = FALSE) {
-		$res = mysql_query($this->INSERTquery($table, $fields_values, $no_quote_fields), $this->link);
+		$res = mysqli_query($this->link, $this->INSERTquery($table, $fields_values, $no_quote_fields));
 		if ($this->debugOutput) {
 			$this->debug('exec_INSERTquery');
 		}
@@ -184,7 +191,7 @@ class t3lib_DB {
 	 * @return	pointer		MySQL result pointer / DBAL object
 	 */
 	public function exec_INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE) {
-		$res = mysql_query($this->INSERTmultipleRows($table, $fields, $rows, $no_quote_fields), $this->link);
+		$res = mysqli_query($this->link, $this->INSERTmultipleRows($table, $fields, $rows, $no_quote_fields));
 		if ($this->debugOutput) {
 			$this->debug('exec_INSERTmultipleRows');
 		}
@@ -203,7 +210,7 @@ class t3lib_DB {
 	 * @return	pointer		MySQL result pointer / DBAL object
 	 */
 	function exec_UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE) {
-		$res = mysql_query($this->UPDATEquery($table, $where, $fields_values, $no_quote_fields), $this->link);
+		$res = mysqli_query($this->link, $this->UPDATEquery($table, $where, $fields_values, $no_quote_fields));
 		if ($this->debugOutput) {
 			$this->debug('exec_UPDATEquery');
 		}
@@ -219,7 +226,7 @@ class t3lib_DB {
 	 * @return	pointer		MySQL result pointer / DBAL object
 	 */
 	function exec_DELETEquery($table, $where) {
-		$res = mysql_query($this->DELETEquery($table, $where), $this->link);
+		$res = mysqli_query( $this->link, $this->DELETEquery($table, $where));
 		if ($this->debugOutput) {
 			$this->debug('exec_DELETEquery');
 		}
@@ -241,7 +248,7 @@ class t3lib_DB {
 	 */
 	function exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '') {
 		$query = $this->SELECTquery($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $limit);
-		$res = mysql_query($query, $this->link);
+		$res = mysqli_query($this->link, $query);
 
 		if ($this->debugOutput) {
 			$this->debug('exec_SELECTquery');
@@ -412,7 +419,7 @@ class t3lib_DB {
 	 * @return	mixed		Result from handler
 	 */
 	public function exec_TRUNCATEquery($table) {
-		$res = mysql_query($this->TRUNCATEquery($table), $this->link);
+		$res = mysqli_query($this->link, $this->TRUNCATEquery($table));
 		if ($this->debugOutput) {
 			$this->debug('exec_TRUNCATEquery');
 		}
@@ -742,7 +749,7 @@ class t3lib_DB {
 	 * @access private
 	 */
 	public function exec_PREPAREDquery($query, array $queryComponents) {
-		$res = mysql_query($query, $this->link);
+		$res = mysqli_query($this->link, $query);
 		if ($this->debugOutput) {
 			$this->debug('stmt_execute', $query);
 		}
@@ -771,7 +778,7 @@ class t3lib_DB {
 	 * @see quoteStr()
 	 */
 	function fullQuoteStr($str, $table) {
-		return '\'' . mysql_real_escape_string($str, $this->link) . '\'';
+		return '\'' . mysqli_real_escape_string($this->link, $str) . '\'';
 	}
 
 	/**
@@ -812,7 +819,7 @@ class t3lib_DB {
 	 * @see quoteStr()
 	 */
 	function quoteStr($str, $table) {
-		return mysql_real_escape_string($str, $this->link);
+		return mysqli_real_escape_string($this->link, $str);
 	}
 
 	/**
@@ -953,7 +960,7 @@ class t3lib_DB {
 	function sql($db, $query) {
 		t3lib_div::logDeprecatedFunction();
 
-		$res = mysql_query($query, $this->link);
+		$res = mysqli_query($this->link, $query);
 		if ($this->debugOutput) {
 			$this->debug('sql', $query);
 		}
@@ -962,7 +969,7 @@ class t3lib_DB {
 
 	/**
 	 * Executes query
-	 * mysql_query() wrapper function
+	 * mysqli_query() wrapper function
 	 * Beware: Use of this method should be avoided as it is experimentally supported by DBAL. You should consider
 	 *         using exec_SELECTquery() and similar methods instead.
 	 * Usage count/core: 1
@@ -971,7 +978,7 @@ class t3lib_DB {
 	 * @return	pointer		Result pointer / DBAL object
 	 */
 	function sql_query($query) {
-		$res = mysql_query($query, $this->link);
+		$res = mysqli_query($this->link, $query);
 		if ($this->debugOutput) {
 			$this->debug('sql_query', $query);
 		}
@@ -980,13 +987,13 @@ class t3lib_DB {
 
 	/**
 	 * Returns the error status on the last sql() execution
-	 * mysql_error() wrapper function
+	 * mysqli_error() wrapper function
 	 * Usage count/core: 32
 	 *
 	 * @return	string		MySQL error string.
 	 */
 	function sql_error() {
-		return mysql_error($this->link);
+		return mysqli_error($this->link);
 	}
 
 	/**
@@ -996,7 +1003,7 @@ class t3lib_DB {
 	 * @return	int		MySQL error number.
 	 */
 	function sql_errno() {
-		return mysql_errno($this->link);
+		return mysqli_errno($this->link);
 	}
 
 	/**
@@ -1009,7 +1016,7 @@ class t3lib_DB {
 	 */
 	function sql_num_rows($res) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_num_rows($res);
+			return mysqli_num_rows($res);
 		} else {
 			return FALSE;
 		}
@@ -1017,7 +1024,7 @@ class t3lib_DB {
 
 	/**
 	 * Returns an associative array that corresponds to the fetched row, or FALSE if there are no more rows.
-	 * mysql_fetch_assoc() wrapper function
+	 * mysqli_fetch_assoc() wrapper function
 	 * Usage count/core: 307
 	 *
 	 * @param	pointer		MySQL result pointer (of SELECT query) / DBAL object
@@ -1025,7 +1032,7 @@ class t3lib_DB {
 	 */
 	function sql_fetch_assoc($res) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_fetch_assoc($res);
+			return mysqli_fetch_assoc($res);
 		} else {
 			return FALSE;
 		}
@@ -1042,7 +1049,7 @@ class t3lib_DB {
 	 */
 	function sql_fetch_row($res) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_fetch_row($res);
+			return mysqli_fetch_row($res);
 		} else {
 			return FALSE;
 		}
@@ -1058,7 +1065,7 @@ class t3lib_DB {
 	 */
 	function sql_free_result($res) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_free_result($res);
+			return mysqli_free_result($res);
 		} else {
 			return FALSE;
 		}
@@ -1072,7 +1079,7 @@ class t3lib_DB {
 	 * @return	integer		The uid of the last inserted record.
 	 */
 	function sql_insert_id() {
-		return mysql_insert_id($this->link);
+		return mysqli_insert_id($this->link);
 	}
 
 	/**
@@ -1083,7 +1090,7 @@ class t3lib_DB {
 	 * @return	integer		Number of rows affected by last query
 	 */
 	function sql_affected_rows() {
-		return mysql_affected_rows($this->link);
+		return mysqli_affected_rows($this->link);
 	}
 
 	/**
@@ -1097,7 +1104,7 @@ class t3lib_DB {
 	 */
 	function sql_data_seek($res, $seek) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_data_seek($res, $seek);
+			return mysqli_data_seek($res, $seek);
 		} else {
 			return FALSE;
 		}
@@ -1114,7 +1121,7 @@ class t3lib_DB {
 	 */
 	function sql_field_type($res, $pointer) {
 		if ($this->debug_check_recordset($res)) {
-			return mysql_field_type($res, $pointer);
+			return mysqli_field_type($res, $pointer);
 		} else {
 			return FALSE;
 		}
@@ -1131,7 +1138,7 @@ class t3lib_DB {
 	 * @return	pointer		Returns a positive MySQL persistent link identifier on success, or FALSE on error.
 	 */
 	function sql_pconnect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password) {
-			// mysql_error() is tied to an established connection
+			// mysqli_error() is tied to an established connection
 			// if the connection fails we need a different method to get the error message
 		@ini_set('track_errors', 1);
 		@ini_set('html_errors', 0);
@@ -1145,23 +1152,9 @@ class t3lib_DB {
 
 			// Check for client compression
 		$isLocalhost = ($TYPO3_db_host == 'localhost' || $TYPO3_db_host == '127.0.0.1');
-		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['no_pconnect']) {
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['dbClientCompress'] && !$isLocalhost) {
-					// We use PHP's default value for 4th parameter (new_link), which is false.
-					// See PHP sources, for example: file php-5.2.5/ext/mysql/php_mysql.c,
-					// function php_mysql_do_connect(), near line 525
-				$this->link = @mysql_connect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password, FALSE, MYSQL_CLIENT_COMPRESS);
-			} else {
-				$this->link = @mysql_connect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password);
-			}
-		} else {
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['dbClientCompress'] && !$isLocalhost) {
-					// See comment about 4th parameter in block above
-				$this->link = @mysql_pconnect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password, MYSQL_CLIENT_COMPRESS);
-			} else {
-				$this->link = @mysql_pconnect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password);
-			}
-		}
+		
+		$this->link = @mysqli_connect($TYPO3_db_host, $TYPO3_db_username, $TYPO3_db_password);
+			
 
 		$error_msg = $php_errormsg;
 		@ini_restore('track_errors');
@@ -1176,9 +1169,9 @@ class t3lib_DB {
 		} else {
 			$setDBinit = t3lib_div::trimExplode(LF, str_replace("' . LF . '", LF, $GLOBALS['TYPO3_CONF_VARS']['SYS']['setDBinit']), TRUE);
 			foreach ($setDBinit as $v) {
-				if (mysql_query($v, $this->link) === FALSE) {
+				if (mysqli_query($this->link, $v) === FALSE) {
 					t3lib_div::sysLog('Could not initialize DB connection with query "' . $v .
-							'": ' . mysql_error($this->link),
+							'": ' . mysqli_error($this->link),
 						'Core',
 						3
 					);
@@ -1204,7 +1197,7 @@ class t3lib_DB {
 					t3lib_div::trimExplode(',', $result[0]),
 					array('NO_BACKSLASH_ESCAPES')
 				);
-				$query = 'SET sql_mode=\'' . mysql_real_escape_string(implode(',', $modes)) . '\';';
+				$query = 'SET sql_mode=\'' . mysqli_real_escape_string($this->link, implode(',', $modes)) . '\';';
 				$success = $this->sql_query($query);
 
 				t3lib_div::sysLog(
@@ -1218,17 +1211,17 @@ class t3lib_DB {
 
 	/**
 	 * Select a MySQL database
-	 * mysql_select_db() wrapper function
+	 * mysqli_select_db() wrapper function
 	 * Usage count/core: 8
 	 *
 	 * @param	string		Database to connect to.
 	 * @return	boolean		Returns TRUE on success or FALSE on failure.
 	 */
 	function sql_select_db($TYPO3_db) {
-		$ret = @mysql_select_db($TYPO3_db, $this->link);
+		$ret = @mysqli_select_db($this->link, $TYPO3_db);
 		if (!$ret) {
 			t3lib_div::sysLog('Could not select MySQL database ' . $TYPO3_db . ': ' .
-					mysql_error(),
+					mysqli_error(),
 				'Core',
 				4
 			);
@@ -1255,8 +1248,8 @@ class t3lib_DB {
 	 */
 	function admin_get_dbs() {
 		$dbArr = array();
-		$db_list = mysql_list_dbs($this->link);
-		while ($row = mysql_fetch_object($db_list)) {
+		$db_list = mysqli_list_dbs($this->link);
+		while ($row = mysqli_fetch_object($db_list)) {
 			if ($this->sql_select_db($row->Database)) {
 				$dbArr[] = $row->Database;
 			}
@@ -1275,9 +1268,9 @@ class t3lib_DB {
 	function admin_get_tables() {
 		$whichTables = array();
 
-		$tables_result = mysql_query('SHOW TABLE STATUS FROM `' . TYPO3_db . '`', $this->link);
-		if (!mysql_error()) {
-			while ($theTable = mysql_fetch_assoc($tables_result)) {
+		$tables_result = mysqli_query($this->link, 'SHOW TABLE STATUS FROM `' . TYPO3_db . '`');
+		if (!mysqli_error()) {
+			while ($theTable = mysqli_fetch_assoc($tables_result)) {
 				$whichTables[$theTable['Name']] = $theTable;
 			}
 
@@ -1301,8 +1294,8 @@ class t3lib_DB {
 	function admin_get_fields($tableName) {
 		$output = array();
 
-		$columns_res = mysql_query('SHOW COLUMNS FROM `' . $tableName . '`', $this->link);
-		while ($fieldRow = mysql_fetch_assoc($columns_res)) {
+		$columns_res = mysqli_query($this->link, 'SHOW COLUMNS FROM `' . $tableName . '`');
+		while ($fieldRow = mysqli_fetch_assoc($columns_res)) {
 			$output[$fieldRow['Field']] = $fieldRow;
 		}
 
@@ -1321,8 +1314,8 @@ class t3lib_DB {
 	function admin_get_keys($tableName) {
 		$output = array();
 
-		$keyRes = mysql_query('SHOW KEYS FROM `' . $tableName . '`', $this->link);
-		while ($keyRow = mysql_fetch_assoc($keyRes)) {
+		$keyRes = mysqli_query($this->link, 'SHOW KEYS FROM `' . $tableName . '`');
+		while ($keyRow = mysqli_fetch_assoc($keyRes)) {
 			$output[] = $keyRow;
 		}
 
@@ -1346,9 +1339,9 @@ class t3lib_DB {
 	function admin_get_charsets() {
 		$output = array();
 
-		$columns_res = mysql_query('SHOW CHARACTER SET', $this->link);
+		$columns_res = mysqli_query($this->link, 'SHOW CHARACTER SET');
 		if ($columns_res) {
-			while (($row = mysql_fetch_assoc($columns_res))) {
+			while (($row = mysqli_fetch_assoc($columns_res))) {
 				$output[$row['Charset']] = $row;
 			}
 
@@ -1366,7 +1359,7 @@ class t3lib_DB {
 	 * @return	pointer		Result pointer
 	 */
 	function admin_query($query) {
-		$res = mysql_query($query, $this->link);
+		$res = mysqli_query($this->link, $query);
 		if ($this->debugOutput) {
 			$this->debug('admin_query', $query);
 		}
@@ -1459,6 +1452,10 @@ class t3lib_DB {
 	function debug_check_recordset($res) {
 		if (is_resource($res)) {
 			return TRUE;
+		}
+		if (@isset($res->num_rows))
+		{
+			return true;
 		}
 
 		$msg = 'Invalid database result resource detected';
