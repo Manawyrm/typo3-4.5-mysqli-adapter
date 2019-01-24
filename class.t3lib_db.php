@@ -1121,7 +1121,7 @@ class t3lib_DB {
 	 */
 	function sql_field_type($res, $pointer) {
 		if ($this->debug_check_recordset($res)) {
-			return mysqli_field_type($res, $pointer);
+			return mysqli_fetch_field_direct($res, $pointer)->type; 
 		} else {
 			return FALSE;
 		}
