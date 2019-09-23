@@ -1221,7 +1221,7 @@ class t3lib_DB {
 		$ret = @mysqli_select_db($this->link, $TYPO3_db);
 		if (!$ret) {
 			t3lib_div::sysLog('Could not select MySQL database ' . $TYPO3_db . ': ' .
-					mysqli_error(),
+					mysqli_error($this->link),
 				'Core',
 				4
 			);
@@ -1269,7 +1269,7 @@ class t3lib_DB {
 		$whichTables = array();
 
 		$tables_result = mysqli_query($this->link, 'SHOW TABLE STATUS FROM `' . TYPO3_db . '`');
-		if (!mysqli_error()) {
+		if (!mysqli_error($this->link)) {
 			while ($theTable = mysqli_fetch_assoc($tables_result)) {
 				$whichTables[$theTable['Name']] = $theTable;
 			}
