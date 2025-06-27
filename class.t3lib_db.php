@@ -4,7 +4,7 @@
  *
  *  ----- WARNING ----
  *  This is a modified version of the Typo3 t3lib_db database adapter
- *  Modified by Tobias Mädel <t.maedel@alfeld.de> for use with
+ *  Modified by Manawyrm for use with
  *  modern PHP versions and mysqli_*() instead of the 
  *  deprecated mysql_*()-handlers.
  *  ----- WARNING ----
@@ -453,7 +453,7 @@ class t3lib_DB {
 
 				// Build query:
 			$query = 'INSERT INTO ' . $table .
-					' (' . implode(',', array_keys($fields_values)) . ') VALUES ' .
+					' (`' . implode('`,`', array_keys($fields_values)) . '`) VALUES ' .
 					'(' . implode(',', $fields_values) . ')';
 
 				// Return query:
@@ -479,7 +479,7 @@ class t3lib_DB {
 		if (count($rows)) {
 				// Build query:
 			$query = 'INSERT INTO ' . $table .
-					' (' . implode(', ', $fields) . ') VALUES ';
+					' (`' . implode('`, `', $fields) . '`) VALUES ';
 
 			$rowSQL = array();
 			foreach ($rows as $row) {
@@ -525,7 +525,7 @@ class t3lib_DB {
 			}
 
 				// Build query:
-			$query = 'UPDATE ' . $table . ' SET ' . implode(',', $fields) .
+			$query = 'UPDATE ' . $table . ' SET `' . implode('`, `', $fields) . '` ' . 
 					(strlen($where) > 0 ? ' WHERE ' . $where : '');
 
 			if ($this->debugOutput || $this->store_lastBuiltQuery) {
@@ -1142,13 +1142,6 @@ class t3lib_DB {
 			// if the connection fails we need a different method to get the error message
 		@ini_set('track_errors', 1);
 		@ini_set('html_errors', 0);
-
-			// check if MySQL extension is loaded
-		// von Tobi auskommentiert
-		//if (!extension_loaded('mysql')) {
-		//	$message = 'Database Error: It seems that MySQL support for PHP is not installed!';
-		//	throw new RuntimeException($message, 1271492606);
-		//}
 
 			// Check for client compression
 		$isLocalhost = ($TYPO3_db_host == 'localhost' || $TYPO3_db_host == '127.0.0.1');
