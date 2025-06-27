@@ -525,7 +525,7 @@ class t3lib_DB {
 			}
 
 				// Build query:
-			$query = 'UPDATE ' . $table . ' SET `' . implode('`, `', $fields) . '` ' . 
+			$query = 'UPDATE ' . $table . ' SET ' . implode(',', $fields) .
 					(strlen($where) > 0 ? ' WHERE ' . $where : '');
 
 			if ($this->debugOutput || $this->store_lastBuiltQuery) {
